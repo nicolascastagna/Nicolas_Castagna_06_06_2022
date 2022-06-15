@@ -1,5 +1,15 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const app = express();
+
+// API connecté à la base de données
+mongoose
+  .connect(
+    "mongodb+srv://new_user:265766@cluster0.ve3za.mongodb.net/?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  )
+  .then(() => console.log("Connexion à MongoDB réussie !"))
+  .catch(() => console.log("Connexion à MongoDB échouée !"));
 
 // enregistre « Requête reçue ! » dans la console et passe l'exécution
 app.use((req, res, next) => {
