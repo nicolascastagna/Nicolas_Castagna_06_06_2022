@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const Thing = require("./models/thing");
 const app = express();
 
 // API connecté à la base de données
@@ -11,6 +12,9 @@ mongoose
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
+app.use(express.json());
+
+// accéder à l'API depuis n'importe quelle origine et envoies requêtes avec les méthodes get...
 app.use((req, res, next) => {
   res.setHeader("Acces-Control-Allow-Origin", "*");
   res.setHeader(
@@ -24,24 +28,29 @@ app.use((req, res, next) => {
   next();
 });
 
-// enregistre « Requête reçue ! » dans la console et passe l'exécution
-app.use((req, res, next) => {
-  console.log("Requête reçue !");
-  next();
+app.post("/api/stuff", (req, res, next) => {
+  delete req.body._id;
+  const thing = new Thing({
+    ...req.body,
+  });
+  thing
+    .save()
+    .then(() => res.status(201).json({ message: "Sauce enregistré !" }))
+    .catch((error) => res.status(400).json({ error }));
 });
-// ajoute un code d'état 201 à la réponse et passe l'exécution
-app.use((req, res, next) => {
-  res.status(201);
-  next();
+
+// méthode findOne pour trouver le même _id que le paramètre de la requête
+app.get("/api/stuff/:id", (req, res, next) => {
+  Thing.findOne({ _id: req.params.id })
+    .then((thing) => res.status(200).json(thing))
+    .catch((error) => res.status(404).json({ error }));
 });
-// troisième envoie la réponse JSON et passe l'exécution
-app.use((req, res, next) => {
-  res.json({ message: "Votre requête a bien été reçue" });
-  next();
-});
-// enregistre « Réponse envoyée avec succès ! » dans la console
-app.use((req, res, next) => {
-  console.log("Réponse envoyée avec succès !");
+
+// méthode find afin de renvoyer un tableau contenant tous les Things de la base de données
+app.get("/api/stuff/:id", (req, res, next) => {
+  Thing.find()
+    .then((things) => res.status(200).json(things))
+    .catch((error) => res.status(400).json({ error }));
 });
 
 module.exports = app;
