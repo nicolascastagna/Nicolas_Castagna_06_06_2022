@@ -1,38 +1,55 @@
-const Thing = require("../models/thing");
+const Sauce = require("../models/sauce");
 
 exports.createSauce = (req, res, next) => {
-  delete req.body._id;
-  const thing = new Thing({
-    ...req.body,
+  const sauceObject = JSON.parse(req, body, sauce);
+  delete sauceObject._id;
+  const sauce = new Sauce({
+    ...sauceObject,
+    imageUrl: `${req.protocol}://${req.get("host")}/images/${
+      req.file.filename
+    }`,
   });
-  thing
+  sauce
     .save()
     .then(() => res.status(201).json({ message: "Sauce enregistré !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
 exports.modifySauce = (req, res, next) => {
-  Thing.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
+  const sauceObject = req.file
+    ? {
+        ...JSON.parse(req.body.sauce),
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${
+          req.file.filename
+        }`,
+      }
+    : { ...req.body };
+  Sauce.updateOne(
+    { _id: req.params.id },
+    { ...sauceObject, _id: req.params.id }
+  )
     .then(() => res.status(200).json({ message: "Sauce modifié !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
 exports.deleteSauce = (req, res, next) => {
-  Thing.deleteOne({ _id: req.params.id })
+  Sauce.deleteOne({ _id: req.params.id })
     .then(() => res.status(200).json({ message: "Sauce supprimé !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
 // méthode findOne pour trouver le même _id que le paramètre de la requête
 exports.getOneSauce = (req, res, next) => {
-  Thing.findOne({ _id: req.params.id })
-    .then((thing) => res.status(200).json(thing))
+  Sauce.findOne({ _id: req.params.id })
+    .then((sauce) => res.status(200).json(sauce))
     .catch((error) => res.status(404).json({ error }));
 };
 
 // méthode find afin de renvoyer un tableau contenant tous les Things de la base de données
 exports.getAllSauces = (req, res, next) => {
-  Thing.find()
-    .then((things) => res.status(200).json(things))
+  Sauce.find()
+    .then((sauces) => res.status(200).json(sauces))
     .catch((error) => res.status(400).json({ error }));
 };
+
+// méthode pour Like et Disliked

@@ -1,7 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
 
-const thingRoutes = require("./routes/stuff");
+const saucesRoutes = require("./routes/sauce");
 const userRoutes = require("./routes/user");
 
 // API connecté à la base de données
@@ -27,7 +28,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/sauces", thingRoutes);
+app.use("/images", express.static(path.join(__dirname, "images")));
+
+app.use("/api/sauces", saucesRoutes);
 app.use("/api/auth", userRoutes);
 
 module.exports = app;
