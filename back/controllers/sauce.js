@@ -25,12 +25,26 @@ exports.modifySauce = (req, res, next) => {
         }`,
       }
     : { ...req.body };
-  Sauce.updateOne(
-    { _id: req.params.id },
-    { ...sauceObject, _id: req.params.id }
-  )
-    .then(() => res.status(200).json({ message: "Sauce modifié !" }))
-    .catch((error) => res.status(400).json({ error }));
+  Sauce.findOne({ _id: req.params.id }).then((sauce) => {
+    if (!req.file) {
+      Sauce.updateOne(
+        { _id: req.params.id },
+        { ...sauceObject, _id: req.params.id }
+      )
+        .then(() => res.status(200).json({ message: "Sauce modifiée !" }))
+        .catch((error) => res.status(400).json({ error }));
+    } else {
+      const filename = sauce.imageUrl.split("/images/")[1];
+      fs.unlink(`images/${filename}`, () => {
+        Sauce.updateOne(
+          { _id: req.params.id },
+          { ...sauceObject, _id: req.params.id }
+        )
+          .then(() => res.status(200).json({ message: "Sauce modifiée !" }))
+          .catch((error) => res.status(400).json({ error }));
+      });
+    }
+  });
 };
 
 exports.deleteSauce = (req, res, next) => {
@@ -61,3 +75,11 @@ exports.getAllSauces = (req, res, next) => {
 };
 
 // méthode pour Like et Disliked
+
+exports.getLike = (req, res, next) => {
+  const like = req.body.like;
+  const dislikes = req.body.dislikes;
+  const usersLiked = [];
+  const usersDisliked = [];
+  Sauce.findOne({ _id: req.params.id });
+};
