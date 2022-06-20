@@ -1,11 +1,14 @@
 const Sauce = require("../models/sauce");
+// module pour modifier / supprimer des fichiers
 const fs = require("fs");
 
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
   const sauce = new Sauce({
+    // spread ... est utilisé pour faire une copie de tous les éléments de req.body
     ...sauceObject,
+    // reconstruit l'URL complète du fichier enregistré
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
       req.file.filename
     }`,
@@ -64,6 +67,7 @@ exports.deleteSauce = (req, res, next) => {
     }
     Sauce.findOne({ _id: req.params.id })
       .then((sauce) => {
+        // Suppression de l'image dans le dossier images
         const filename = sauce.imageUrl.split("/images/")[1];
         fs.unlink(`images/${filename}`, () => {
           Sauce.deleteOne({ _id: req.params.id })
@@ -97,7 +101,7 @@ exports.getLike = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
       console.log(sauce);
-      // Si l'userId n'est pas le même que celui de la sauce, alors +1
+      // Si userId n'est pas inclus dans usersLiked et ajoute like +1
       if (!sauce.usersLiked.includes(req.body.userId) && like === 1) {
         // mise à jour MongoDB
         Sauce.updateOne(
@@ -109,7 +113,7 @@ exports.getLike = (req, res, next) => {
         )
           .then(() => res.status(200).json({ message: "Like +1 !" }))
           .catch((error) => res.status(400).json({ error }));
-        // passe like à -1
+        //  // Si userId n'est pas inclus dans usersDisliked et ajoute like -1
       } else if (
         !sauce.usersDisliked.includes(req.body.userId) &&
         like === -1
