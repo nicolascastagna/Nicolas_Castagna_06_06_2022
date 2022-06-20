@@ -93,8 +93,69 @@ exports.getAllSauces = (req, res, next) => {
 
 exports.getLike = (req, res, next) => {
   const like = req.body.like;
-  const dislikes = req.body.dislikes;
-  const usersLiked = [];
-  const usersDisliked = [];
-  Sauce.findOne({ _id: req.params.id });
+
+  Sauce.findOne({ _id: req.params.id })
+    .then((sauce) => {
+      console.log(sauce);
+      // Si l'userId n'est pas le même que celui de la sauce, alors +1
+      if (!sauce.usersLiked.includes(req.body.userId) && like === 1) {
+        // mise à jour MongoDB
+        Sauce.updateOne(
+          { _id: req.params.id },
+          {
+            $inc: { likes: 1 },
+            $push: { usersLiked: req.body.userId },
+          }
+        )
+          .then(() => res.status(200).json({ message: "Like +1 !" }))
+          .catch((error) => res.status(400).json({ error }));
+        // passe like à -1
+      } else if (
+        !sauce.usersDisliked.includes(req.body.userId) &&
+        like === -1
+      ) {
+        // mise à jour MongoDB
+        Sauce.updateOne(
+          { _id: req.params.id },
+          {
+            $inc: { dislikes: 1 },
+            $push: { usersDisliked: req.body.userId },
+          }
+        )
+          .then(() => res.status(200).json({ message: "Dislike +1" }))
+          .catch((error) => res.status(400).json({ error }));
+
+        // passe le like à 0
+      } else if (like === 0 && sauce.usersLiked.includes(req.body.userId)) {
+        // mise à jour MongoDB
+        Sauce.updateOne(
+          { _id: req.params.id },
+          {
+            $inc: { likes: -1 },
+            $pull: { usersLiked: req.body.userId },
+          }
+        )
+          .then(() => res.status(200).json({ message: "Like -1" }))
+          .catch((error) => res.status(400).json({ error }));
+
+        // passe disliked à 0
+      } else if (
+        sauce.usersDisliked.includes(req.body.userId) &&
+        req.body.like === 0
+      ) {
+        // mise à jour MongoDB
+        Sauce.updateOne(
+          { _id: req.params.id },
+          {
+            $inc: { dislikes: -1 },
+            $pull: { usersDisliked: req.body.userId },
+          }
+        )
+          .then(() => res.status(200).json({ message: "Dislikes -1" }))
+          .catch((error) => res.status(400).json({ error }));
+      } else {
+        return res.status(400).json({ error });
+      }
+    })
+    .catch((error) => res.status(500).json({ error }));
 };

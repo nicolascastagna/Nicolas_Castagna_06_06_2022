@@ -1,9 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
-
 const saucesRoutes = require("./routes/sauce");
 const userRoutes = require("./routes/user");
+const helmet = require("helmet");
 
 // API connecté à la base de données
 mongoose
@@ -30,7 +30,7 @@ app.use((req, res, next) => {
   );
   next();
 });
-
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 app.use("/api/sauces", saucesRoutes);
