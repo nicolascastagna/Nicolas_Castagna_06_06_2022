@@ -1,8 +1,10 @@
+// Schéma de données Mongoose importé
 const Sauce = require("../models/sauce");
 // module pour modifier / supprimer des fichiers
 const fs = require("fs");
 
 exports.createSauce = (req, res, next) => {
+  // JSON.parse() pour obtenir un objet utilisable
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
   const sauce = new Sauce({
@@ -16,6 +18,7 @@ exports.createSauce = (req, res, next) => {
     dislikes: 0,
   });
   sauce
+    // Enregistre à la base de donnée
     .save()
     .then(() => res.status(201).json({ message: "Sauce enregistré !" }))
     .catch((error) => res.status(400).json({ error }));
@@ -129,9 +132,8 @@ exports.getLike = (req, res, next) => {
           .then(() => res.status(200).json({ message: "Dislike +1" }))
           .catch((error) => res.status(400).json({ error }));
 
-        // passe le like à 0
+        // passe le like à 0, si l'utilisateur est inclus en usersLiked
       } else if (like === 0 && sauce.usersLiked.includes(req.body.userId)) {
-        // mise à jour MongoDB
         Sauce.updateOne(
           { _id: req.params.id },
           {
@@ -147,7 +149,6 @@ exports.getLike = (req, res, next) => {
         sauce.usersDisliked.includes(req.body.userId) &&
         req.body.like === 0
       ) {
-        // mise à jour MongoDB
         Sauce.updateOne(
           { _id: req.params.id },
           {

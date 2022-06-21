@@ -1,10 +1,14 @@
+// import bcrypt pour hasher le mot de passe
 const bcrypt = require("bcrypt");
+// import jsonwebtoken pour définir un token user
 const jwt = require("jsonwebtoken");
+// import schéma User
 const User = require("../models/User");
 
 // Création utilisateur et mot de passe hash avec bcrypt
 exports.signup = (req, res, next) => {
   bcrypt
+    // "saler" le mot de passe 10 fois avec la méthode hash de bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
       const user = new User({
@@ -27,7 +31,7 @@ exports.login = (req, res, next) => {
       if (!user) {
         return res.status(401).json({ error: "Utilisateur non trouvé !" });
       }
-      // Compare les mots de passe
+      // Compare les mots de passe avec celui "écrit" et enregistré en base de donnée
       bcrypt
         .compare(req.body.password, user.password)
         .then((valid) => {

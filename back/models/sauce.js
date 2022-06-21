@@ -1,3 +1,4 @@
+// Mongoose pour gérer la base de données MongoDB
 const mongoose = require("mongoose");
 
 // Schéma de données pour la base de données MongoDB
@@ -14,4 +15,5 @@ const sauceSchema = mongoose.Schema({
   usersLiked: { type: [String] },
   usersDisliked: { type: [String] },
 });
+// export le schéma Sauce en tant que modèle Mongoose
 module.exports = mongoose.model("Sauce", sauceSchema);

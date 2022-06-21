@@ -1,10 +1,15 @@
+// import Express
 const express = require("express");
+// import Mongoose pour gérer la base de données MongoDB
 const mongoose = require("mongoose");
+// plugin pour les images
 const path = require("path");
+// import routes API
 const saucesRoutes = require("./routes/sauce");
+// import routes signup / login
 const userRoutes = require("./routes/user");
 
-// sécurise HTTP headers retournée par Express app
+// sécurité sur l'en-tête HTTP
 const helmet = require("helmet");
 
 // API connecté à la base de données
@@ -16,7 +21,7 @@ mongoose
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
-// Module express
+// création application Express
 const app = express();
 // extrait le corps JSON
 app.use(express.json());
@@ -36,7 +41,7 @@ app.use((req, res, next) => {
 });
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 
-// Chemin d'accès vers le répertoire d'images
+// traite les requêtes vers /images, en rendant statique le dossier
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 // Routes
