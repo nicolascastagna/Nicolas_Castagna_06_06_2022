@@ -2,7 +2,7 @@
 
 ## Technologies
 
-Node.js, Mongoose, MongoDb
+Node.js, Express, Mongoose, MongoDb
 
 ## Installation
 
